@@ -2,11 +2,17 @@ package main
 
 import (
 	"net"
+	"os"
 	"tcp-pow/challenge"
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8888")
+	address, ok := os.LookupEnv("TCP_TARGET")
+	if !ok {
+		panic("TCP_TARGET env variable is not set")
+	}
+
+	conn, err := net.Dial("tcp", address)
 	if err != nil {
 		panic(err)
 	}

@@ -1,0 +1,27 @@
+FROM golang:1.20 as builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main /app/cmd/client
+
+FROM alpine:3.14
+
+RUN apk update
+RUN apk add ca-certificates
+RUN rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+COPY --from=builder /app/main /app/main
+
+RUN adduser --disabled-password --gecos "" --home "$(pwd)" \
+    --ingroup "users" --no-create-home --uid "888" "nonroot" \
+ && chown -R -f 888:888 /app \
+ && chmod +x /app/main
+USER 888
+
+CMD ["./main"]

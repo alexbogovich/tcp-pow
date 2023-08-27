@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+
+  tcpserver:
+    build:
+      context: .
+      dockerfile: Dockerfile-server
+    container_name: tcpserver
+    ports:
+      - "8888:8888"
+
+  tcpclient:
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    container_name: tcpclient
+    environment:
+      - TCP_TARGET=tcpserver:8888
+    depends_on:
+      - tcpserver
