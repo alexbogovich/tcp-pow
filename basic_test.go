@@ -101,13 +101,16 @@ func TestYolo(t *testing.T) {
 	require.NoError(t, err)
 
 	buf := make([]byte, 4)
-	conn.Read(buf)
+	_, err = conn.Read(buf)
+	require.NoError(t, err, "expected to read challenge")
 	assert.Equal(t, "ping", string(buf), "expected challenge: ping")
 
-	conn.Write([]byte("pong"))
+	_, err = conn.Write([]byte("pong"))
+	require.NoError(t, err, "expected to write solution")
+
 	buf = make([]byte, 256)
 	n, err := conn.Read(buf)
-	require.NoError(t, err)
+	require.NoError(t, err, "expected to read quote")
 
 	assert.Contains(t, quotes, string(buf[:n]), "expected one of the quotes on passing the challenge")
 
