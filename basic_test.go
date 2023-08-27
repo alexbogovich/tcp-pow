@@ -89,7 +89,7 @@ func tcpListenerRun(listener net.Listener) {
 	}
 }
 
-func TestYolo(t *testing.T) {
+func TestPositive(t *testing.T) {
 	tcpServerStop, err := tcpServerStart()
 	require.NoError(t, err)
 
@@ -113,6 +113,33 @@ func TestYolo(t *testing.T) {
 	require.NoError(t, err, "expected to read quote")
 
 	assert.Contains(t, quotes, string(buf[:n]), "expected one of the quotes on passing the challenge")
+
+	conn.Close()
+}
+
+func TestNegative(t *testing.T) {
+	tcpServerStop, err := tcpServerStart()
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		tcpServerStop()
+	})
+
+	conn, err := net.Dial("tcp", "localhost:8888")
+	require.NoError(t, err)
+
+	buf := make([]byte, 4)
+	_, err = conn.Read(buf)
+	require.NoError(t, err, "expected to read challenge")
+	assert.Equal(t, "ping", string(buf), "expected challenge: ping")
+
+	_, err = conn.Write([]byte("wrong"))
+	require.NoError(t, err, "expected to write solution")
+
+	buf = make([]byte, 256)
+	_, err = conn.Read(buf)
+
+	assert.ErrorContains(t, err, "read: connection reset by peer", "expected to fail on wrong solution")
 
 	conn.Close()
 }
