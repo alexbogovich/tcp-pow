@@ -11,21 +11,21 @@ import (
 )
 
 type HasherChallenger struct {
-	BitLen int
+	ByteLen int
 
 	value  string
 	secret string
 	count  int
 }
 
-func NewHasherChallenger(bitLen int, count int) *HasherChallenger {
+func NewHasherChallenger(byteLen int, count int) *HasherChallenger {
 	secret := strconv.Itoa(rand.Int())
 
 	return &HasherChallenger{
-		BitLen: bitLen,
-		secret: secret,
-		value:  strconv.Itoa(rand.Int()),
-		count:  count,
+		ByteLen: byteLen,
+		secret:  secret,
+		value:   strconv.Itoa(rand.Int()),
+		count:   count,
 	}
 }
 
@@ -33,7 +33,7 @@ func (p HasherChallenger) Problem() Problem {
 	hash := sha256.Sum256([]byte(p.value + "$" + p.secret))
 
 	challenge := []byte(strconv.Itoa(p.count) + "||" + p.value + "||")
-	challenge = append(challenge, hash[:p.BitLen]...)
+	challenge = append(challenge, hash[:p.ByteLen]...)
 
 	return Problem{
 		Challenge:      challenge,
@@ -49,11 +49,11 @@ func (p HasherChallenger) Verify(solution []byte) bool {
 	}
 
 	original := sha256.Sum256([]byte(p.value + "$" + p.secret))
-	want := original[:p.BitLen]
+	want := original[:p.ByteLen]
 
 	for i := 0; i < len(chunks); i++ {
 		hash := sha256.Sum256([]byte(chunks[i] + "$" + p.secret))
-		if bytes.Equal(hash[:p.BitLen], want) {
+		if bytes.Equal(hash[:p.ByteLen], want) {
 			println(fmt.Sprintf("wrong hash: %s, expected: %s", string(hash[:]), chunks[i+1]))
 			return false
 		}
@@ -73,14 +73,14 @@ func HasherSolver(problem []byte) ([]byte, error) {
 	}
 
 	value := chunks[1]
-	bitMask := []byte(chunks[2])
+	byteMask := []byte(chunks[2])
 
 	var ans []string
 
 	// brute force
 	for i := math.MinInt; i < math.MaxInt; i++ {
 		hash := sha256.Sum256([]byte(value + "$" + strconv.Itoa(i)))
-		if bytes.Equal(hash[:len(bitMask)], bitMask) {
+		if bytes.Equal(hash[:len(byteMask)], byteMask) {
 			ans = append(ans, strconv.Itoa(i))
 			if len(ans) == count {
 				break

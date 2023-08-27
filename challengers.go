@@ -9,6 +9,6 @@ var PingPongProvider = func() challenge.Challenger {
 }
 
 var HasherProvider = func() challenge.Challenger {
-	// bitLen and count may be dynamic depending on current metrics or whatever
+	// byte and count may be dynamic depending on current metrics or whatever
 	return challenge.NewHasherChallenger(2, 4)
 }
