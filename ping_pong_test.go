@@ -46,10 +46,10 @@ func TestPingPongNegative(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:8888")
 	require.NoError(t, err)
 
-	buf := make([]byte, 4)
-	_, err = conn.Read(buf)
+	buf := make([]byte, 1024)
+	challengeN, err := conn.Read(buf)
 	require.NoError(t, err, "expected to read challenge")
-	assert.Equal(t, "ping", string(buf), "expected challenge: ping")
+	assert.Equal(t, "ping", string(buf[:challengeN]), "expected challenge: ping")
 
 	_, err = conn.Write([]byte("wrong"))
 	require.NoError(t, err, "expected to write solution")
@@ -57,7 +57,12 @@ func TestPingPongNegative(t *testing.T) {
 	buf = make([]byte, 256)
 	_, err = conn.Read(buf)
 
-	assert.ErrorContains(t, err, "read: connection reset by peer", "expected to fail on wrong solution")
+	switch {
+	case err.Error() == "EOF":
+		assert.Error(t, err, "expected to fail on wrong solution")
+	default:
+		assert.ErrorContains(t, err, "read: connection reset by peer", "expected to fail on wrong solution")
+	}
 
 	conn.Close()
 }

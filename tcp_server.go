@@ -50,21 +50,19 @@ func tcpListenerRun(cp ChallengerProvider, listener net.Listener) {
 		conn.SetDeadline(time.Now().Add(60 * time.Second))
 
 		go func() {
+			// Make challenge
 			challenger := cp()
 			problem := challenger.Problem()
-
-			// Make challenge
 			conn.Write(problem.Challenge)
 
 			// Read Solution
 			buf := make([]byte, problem.ExpectBytesLen)
 			conn.Read(buf)
-			if !challenger.Verify(buf) {
-				println("wrong message")
-				conn.Close()
-			} else {
+			if challenger.Verify(buf) {
 				msg := quotes[rand.Intn(len(quotes))]
 				conn.Write([]byte(msg))
+			} else {
+				//println("wrong message")
 			}
 
 			conn.Close()

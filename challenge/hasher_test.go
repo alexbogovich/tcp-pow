@@ -6,7 +6,7 @@ import (
 
 func Test(t *testing.T) {
 	challenger := NewHasherChallenger(2, 3)
-	solution, err := HasherSolver(challenger)
+	solution, err := HasherSolver(challenger.Problem().Challenge)
 	if err != nil {
 		t.Fatal(err)
 	}

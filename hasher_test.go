@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net"
+	"strings"
 	"tcp-pow/challenge"
 	"testing"
 )
@@ -20,10 +21,10 @@ func TestHasherPositive(t *testing.T) {
 	require.NoError(t, err)
 
 	buf := make([]byte, 1024)
-	challengN, err := conn.Read(buf)
+	challengeN, err := conn.Read(buf)
 	require.NoError(t, err, "expected to read challenge")
 
-	result, err := challenge.HasherSolver(buf[:challengN])
+	result, err := challenge.HasherSolver(buf[:challengeN])
 	require.NoError(t, err, "expected to solve challenge")
 
 	_, err = conn.Write(result)
@@ -49,18 +50,24 @@ func TestHasherNegative(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:8888")
 	require.NoError(t, err)
 
-	buf := make([]byte, 4)
+	buf := make([]byte, 1024)
 	_, err = conn.Read(buf)
 	require.NoError(t, err, "expected to read challenge")
-	assert.Equal(t, "ping", string(buf), "expected challenge: ping")
 
-	_, err = conn.Write([]byte("wrong"))
+	wrong := strings.Join([]string{"yollo", "bollo"}, "||")
+
+	_, err = conn.Write([]byte(wrong))
 	require.NoError(t, err, "expected to write solution")
 
 	buf = make([]byte, 256)
 	_, err = conn.Read(buf)
 
-	assert.ErrorContains(t, err, "read: connection reset by peer", "expected to fail on wrong solution")
+	switch {
+	case err.Error() == "EOF":
+		assert.Error(t, err, "expected to fail on wrong solution")
+	default:
+		assert.ErrorContains(t, err, "read: connection reset by peer", "expected to fail on wrong solution")
+	}
 
 	conn.Close()
 }
