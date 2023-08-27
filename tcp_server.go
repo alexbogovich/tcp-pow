@@ -1,6 +1,7 @@
 package tcppow
 
 import (
+	"fmt"
 	"math/rand"
 	"net"
 	"time"
@@ -26,18 +27,21 @@ func TcpServerStart(cp ChallengerProvider, address string) (func() error, error)
 }
 
 func tcpListenerRun(cp ChallengerProvider, listener net.Listener) {
-	// TODO: panic handling
-
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			return
 		}
 
-		// TODO: deadline config
 		conn.SetDeadline(time.Now().Add(60 * time.Second))
 
 		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Println("panic in tcp connection processing", r)
+				}
+			}()
+
 			// Make challenge
 			challenger := cp()
 			problem := challenger.Problem()
