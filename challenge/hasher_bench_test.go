@@ -13,16 +13,20 @@ var table = []struct {
 	{count: 4, mask: 1},
 	{count: 16, mask: 1},
 	{count: 32, mask: 1},
+	{count: 64, mask: 1},
+	{count: 128, mask: 1},
 
 	{count: 1, mask: 2},
 	{count: 4, mask: 2},
 	{count: 16, mask: 2},
 	{count: 32, mask: 2},
+	{count: 64, mask: 2},
 
 	{count: 1, mask: 3},
 	{count: 4, mask: 3},
 	{count: 16, mask: 3},
-	{count: 32, mask: 3},
+
+	//{count: 1, mask: 4},
 }
 
 func BenchmarkPrimeNumbers(b *testing.B) {

@@ -39,7 +39,7 @@ The algorithm is inspired by the [Hashcash](https://achsu3.github.io/client-puzz
 
 1) The server generates a value and secret numbers. (I choose number to simplify the implementation, but it can be any data type)
 2) The server makes a hash of the value and secret and sends it to the client. (sha256 is used)
-3) The server server sends the value `value`, first `m` bytes of the hash, and a number `K` to the client.
+3) The server sends the value `value`, first `m` bytes of the hash, and a number `K` to the client.
 ```   
    v = random_string()
    secret = random_number()
@@ -58,14 +58,52 @@ The client should find `K` solutions that produces a hash with the first `N` byt
            send(bucket)
 ```
 
-#### Performance
+### Performance
 
-##### Server
+#### Server
 
 generation = `O(1)`
 
 verification = `O(K)`, where `K` is the number of values that is expected to be received from the client.
 
-##### Client
+#### Client
 
+`m` (bytes of the hash) affects exponentially
+`K` number of expected values affects linearly
 
+```log
+goos: darwin
+goarch: arm64
+pkg: tcp-pow/challenge
+BenchmarkPrimeNumbers
+BenchmarkPrimeNumbers/K_1_m_1
+BenchmarkPrimeNumbers/K_1_m_1-8         	   41494	     28908 ns/op
+BenchmarkPrimeNumbers/K_4_m_1
+BenchmarkPrimeNumbers/K_4_m_1-8         	   10000	    123638 ns/op
+BenchmarkPrimeNumbers/K_16_m_1
+BenchmarkPrimeNumbers/K_16_m_1-8        	    2533	    508453 ns/op
+BenchmarkPrimeNumbers/K_32_m_1
+BenchmarkPrimeNumbers/K_32_m_1-8        	    1204	    908951 ns/op
+BenchmarkPrimeNumbers/K_64_m_1
+BenchmarkPrimeNumbers/K_64_m_1-8        	     639	   1806048 ns/op
+BenchmarkPrimeNumbers/K_128_m_1
+BenchmarkPrimeNumbers/K_128_m_1-8       	     333	   3994640 ns/op
+BenchmarkPrimeNumbers/K_1_m_2
+BenchmarkPrimeNumbers/K_1_m_2-8         	     128	   8126764 ns/op
+BenchmarkPrimeNumbers/K_4_m_2
+BenchmarkPrimeNumbers/K_4_m_2-8         	      87	  30762981 ns/op
+BenchmarkPrimeNumbers/K_16_m_2
+BenchmarkPrimeNumbers/K_16_m_2-8        	      10	 118799829 ns/op
+BenchmarkPrimeNumbers/K_32_m_2
+BenchmarkPrimeNumbers/K_32_m_2-8        	       5	 229674433 ns/op
+BenchmarkPrimeNumbers/K_64_m_2
+BenchmarkPrimeNumbers/K_64_m_2-8        	       3	 522734333 ns/op
+BenchmarkPrimeNumbers/K_1_m_3
+BenchmarkPrimeNumbers/K_1_m_3-8         	       1	2432273625 ns/op
+BenchmarkPrimeNumbers/K_4_m_3
+BenchmarkPrimeNumbers/K_4_m_3-8         	       1	9757170209 ns/op
+BenchmarkPrimeNumbers/K_16_m_3
+BenchmarkPrimeNumbers/K_16_m_3-8        	       1	40964844291 ns/op
+```
+
+`This calc could be parallel, so the number of cores can be used to speed up the process*`
