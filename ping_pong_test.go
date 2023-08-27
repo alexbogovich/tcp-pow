@@ -8,7 +8,7 @@ import (
 )
 
 func TestPingPongPositive(t *testing.T) {
-	tcpServerStop, err := tcpServerStart(pingPongProvider)
+	tcpServerStop, err := TcpServerStart(PingPongProvider, "localhost:8888")
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
@@ -36,7 +36,7 @@ func TestPingPongPositive(t *testing.T) {
 }
 
 func TestPingPongNegative(t *testing.T) {
-	tcpServerStop, err := tcpServerStart(pingPongProvider)
+	tcpServerStop, err := TcpServerStart(PingPongProvider, "localhost:8888")
 	require.NoError(t, err)
 
 	t.Cleanup(func() {

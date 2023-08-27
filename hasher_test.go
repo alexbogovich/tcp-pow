@@ -10,7 +10,7 @@ import (
 )
 
 func TestHasherPositive(t *testing.T) {
-	tcpServerStop, err := tcpServerStart(hasherProvider)
+	tcpServerStop, err := TcpServerStart(HasherProvider, "localhost:8888")
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
@@ -40,7 +40,7 @@ func TestHasherPositive(t *testing.T) {
 }
 
 func TestHasherNegative(t *testing.T) {
-	tcpServerStop, err := tcpServerStart(hasherProvider)
+	tcpServerStop, err := TcpServerStart(HasherProvider, "localhost:8888")
 	require.NoError(t, err)
 
 	t.Cleanup(func() {

@@ -3,7 +3,6 @@ package tcppow
 import (
 	"math/rand"
 	"net"
-	"tcp-pow/challenge"
 	"time"
 )
 
@@ -15,19 +14,8 @@ var quotes = []string{
 	"A room without books is like a body without a soul.",
 }
 
-type ChallengerProvider func() challenge.Challenger
-
-var pingPongProvider = func() challenge.Challenger {
-	return challenge.PingPongChallenger{}
-}
-
-var hasherProvider = func() challenge.Challenger {
-	// bitLen and count may be dynamic depending on current metrics or whatever
-	return challenge.NewHasherChallenger(2, 4)
-}
-
-func tcpServerStart(cp ChallengerProvider) (func() error, error) {
-	l, err := net.Listen("tcp", "localhost:8888")
+func TcpServerStart(cp ChallengerProvider, address string) (func() error, error) {
+	l, err := net.Listen("tcp", address)
 	if err != nil {
 		return nil, err
 	}
