@@ -29,47 +29,47 @@ Design and implement “Word of Wisdom” tcp server.
 - The algorithm should be able to generate different challenges for different clients.
 - The difficulty of the challenge should be adjustable depending on the load of the server (???).
 
-
-
 ## Implementation
 
 ### Algorithm
 
-The algorithm is inspired by the [Hashcash](https://achsu3.github.io/client-puzzles-dsn19.pdf) algorithm.
+The algorithm is inspired by [THE JUELS PUZZLE
+SCHEM](https://achsu3.github.io/client-puzzles-dsn19.pdf) paper, page 4.
 
-1) The server generates a value and secret numbers. (I choose number to simplify the implementation, but it can be any data type)
-2) The server makes a hash of the value and secret and sends it to the client. (sha256 is used)
-3) The server sends the value `value`, first `m` bytes of the hash, and a number `K` to the client.
+1) The server generates a value and secret digits. (I choose number to simplify the implementation, but it can be any data type.)
+2) The server creates a hash of the `value` and `secret` and calculates hash of them. (sha256 is used)
+3) The server sends the value `value`, the first `m` bytes of the hash, and a number `K` to the client.
 ```   
    v = random_string()
    secret = random_number()
-   hash = sha256(v + '$' +  secret)
+   hash = sha256(value + '$' + secret)
    
-   send(hash, v, hash[:m], K)
+   send(value, hash[:m], K)
 ```
 
 
-The client should find `K` solutions that produces a hash with the first `N` bytes equal to the hash sent by the server.
+The client should find `K` solutions that produce a hash with the first `m` bytes equal to the hash sent by the server.
 ```
-   hash = sha256(v + '$' + ki)
-   if hash[:m] == hash_from_server:
-       bucket += ki
-       if len(bucket) == K:
-           send(bucket)
+   for each ki in number_range:
+      hash = sha256(value + '$' + ki)
+      if hash[:m] == hash_from_server:
+          bucket += ki
+          if len(bucket) == K:
+              send(bucket)
 ```
 
 ### Performance
 
-#### Server
+#### server
 
-generation = `O(1)`
+generation = `O(1)`.
 
-verification = `O(K)`, where `K` is the number of values that is expected to be received from the client.
+verification = `O(K)`, where `K` is the number of values expected from the client.
 
 #### Client
 
-`m` (bytes of the hash) affects exponentially
-`K` number of expected values affects linearly
+`m` (bytes of hash) exponentially affects
+`K` (number of expected values) acts linearly
 
 ```log
 goos: darwin
