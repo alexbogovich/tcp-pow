@@ -42,22 +42,30 @@ func tcpListenerRun(cp ChallengerProvider, listener net.Listener) {
 				}
 			}()
 
+			defer conn.Close()
+
 			// Make challenge
 			challenger := cp()
 			problem := challenger.Problem()
-			conn.Write(problem.Challenge)
+			_, err := conn.Write(problem.Challenge)
+			if err != nil {
+				return
+			}
 
 			// Read Solution
 			buf := make([]byte, problem.ExpectBytesLen)
-			conn.Read(buf)
+			_, err = conn.Read(buf)
+			if err != nil {
+				return
+			}
+
+			// Verify Solution
 			if challenger.Verify(buf) {
 				msg := quotes[rand.Intn(len(quotes))]
-				conn.Write([]byte(msg))
+				_, _ = conn.Write([]byte(msg))
 			} else {
 				//println("wrong message")
 			}
-
-			conn.Close()
 		}()
 	}
 }
