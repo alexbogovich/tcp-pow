@@ -29,7 +29,7 @@ var table = []struct {
 	//{count: 1, mask: 4},
 }
 
-func BenchmarkPrimeNumbers(b *testing.B) {
+func BenchmarkHasherChallenger(b *testing.B) {
 	for _, v := range table {
 		// K - number of matches
 		// m - bytes number
