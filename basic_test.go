@@ -18,6 +18,29 @@ var quotes = []string{
 	"A room without books is like a body without a soul.",
 }
 
+type Problem struct {
+	Challenge      []byte
+	ExpectBytesLen int
+}
+
+type Challenger interface {
+	Challenge() Problem
+	Verify([]byte) bool
+}
+
+type PingPongChallenger struct{}
+
+func (p PingPongChallenger) Challenge() Problem {
+	return Problem{
+		Challenge:      []byte("ping"),
+		ExpectBytesLen: 4,
+	}
+}
+
+func (p PingPongChallenger) Verify(solution []byte) bool {
+	return string(solution) == "pong"
+}
+
 func tcpServerStart() (func() error, error) {
 	l, err := net.Listen("tcp", "localhost:8888")
 	if err != nil {
@@ -32,6 +55,8 @@ func tcpServerStart() (func() error, error) {
 func tcpListenerRun(listener net.Listener) {
 	// TODO: panic handling
 
+	challenger := PingPongChallenger{}
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -43,13 +68,15 @@ func tcpListenerRun(listener net.Listener) {
 
 		go func() {
 
+			problem := challenger.Challenge()
+
 			// Make challenge
-			conn.Write([]byte("ping"))
+			conn.Write(problem.Challenge)
 
 			// Read Solution
-			buf := make([]byte, 4)
+			buf := make([]byte, problem.ExpectBytesLen)
 			conn.Read(buf)
-			if string(buf) != "pong" {
+			if !challenger.Verify(buf) {
 				println("wrong message")
 				conn.Close()
 			} else {
