@@ -68,12 +68,4 @@ verification = `O(K)`, where `K` is the number of values that is expected to be 
 
 ##### Client
 
-Amount of hashed that client need to calculate is 
-```text
-k^2 * 2^(8*m)
-```
 
-```
-
-
-```

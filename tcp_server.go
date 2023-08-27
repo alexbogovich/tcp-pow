@@ -54,13 +54,13 @@ func tcpListenerRun(cp ChallengerProvider, listener net.Listener) {
 
 			// Read Solution
 			buf := make([]byte, problem.ExpectBytesLen)
-			_, err = conn.Read(buf)
+			solutionN, err := conn.Read(buf)
 			if err != nil {
 				return
 			}
 
 			// Verify Solution
-			if challenger.Verify(buf) {
+			if challenger.Verify(buf[:solutionN]) {
 				msg := quotes[rand.Intn(len(quotes))]
 				_, _ = conn.Write([]byte(msg))
 			} else {

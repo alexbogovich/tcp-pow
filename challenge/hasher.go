@@ -52,9 +52,8 @@ func (p HasherChallenger) Verify(solution []byte) bool {
 	want := original[:p.ByteLen]
 
 	for i := 0; i < len(chunks); i++ {
-		hash := sha256.Sum256([]byte(chunks[i] + "$" + p.secret))
-		if bytes.Equal(hash[:p.ByteLen], want) {
-			println(fmt.Sprintf("wrong hash: %s, expected: %s", string(hash[:]), chunks[i+1]))
+		hash := sha256.Sum256([]byte(p.value + "$" + chunks[i]))
+		if !bytes.Equal(hash[:p.ByteLen], want) {
 			return false
 		}
 	}
@@ -73,14 +72,15 @@ func HasherSolver(problem []byte) ([]byte, error) {
 	}
 
 	value := chunks[1]
-	byteMask := []byte(chunks[2])
+	want := []byte(chunks[2])
+	bytesLen := len(want)
 
 	var ans []string
 
 	// brute force
 	for i := math.MinInt; i < math.MaxInt; i++ {
 		hash := sha256.Sum256([]byte(value + "$" + strconv.Itoa(i)))
-		if bytes.Equal(hash[:len(byteMask)], byteMask) {
+		if bytes.Equal(hash[:bytesLen], want) {
 			ans = append(ans, strconv.Itoa(i))
 			if len(ans) == count {
 				break
